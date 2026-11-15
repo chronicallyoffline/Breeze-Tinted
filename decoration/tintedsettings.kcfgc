@@ -1,0 +1,7 @@
+File=tintedsettingsdata.kcfg
+ClassName=InternalSettings
+NameSpace=Tinted
+Singleton=false
+Mutators=true
+GlobalEnums=true
+Notifiers=OutlineCloseButton

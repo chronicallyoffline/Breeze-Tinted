@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Category": "Appearance",
+        "Description": "Samples window contents so the Tinted decoration can match each window's colors",
+        "EnabledByDefault": false,
+        "License": "GPL",
+        "Name": "Tint Sampler"
+    }
+}
