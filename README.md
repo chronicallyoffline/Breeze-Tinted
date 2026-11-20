@@ -12,10 +12,10 @@ Two plugins:
 The first source that yields a color wins:
 
 1. **Per-app override.** In the decoration settings, go to *Window-Specific Overrides* and set *Tint color*. *Don't tint this window* draws the window like stock Breeze.
-2. The automatic sources, in the order set on the *Tint* tab. Each can be switched off.
-   - **Window contents**: the average color of the client area's edges (or its whole area), from the `tintsampler` effect.
+2. The automatic sources, in the order set on the *Tint* tab (by default: color scheme, icon, window contents). Each can be switched off.
    - **Application color scheme**: the window's highlight color (or failing that, its background), but only when it differs from the global scheme. This covers KDE apps that set their own scheme, and the KWin window rule *Titlebar color scheme*.
    - **Application icon**: the dominant saturated hue of the icon.
+   - **Window contents**: the average color of the client area's edges (or its whole area), from the `tintsampler` effect. Samples that are close to gray are skipped.
 3. **The global accent color.**
 
 The resolved color is then shaped (saturation, a lightness clamp, an optional blend with the accent) and applied:

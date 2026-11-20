@@ -23,7 +23,7 @@
           <choice name="ShadowLarge"/>
           <choice name="ShadowVeryLarge"/>
       </choices>
-      <default>ShadowLarge</default>
+      <default>ShadowSmall</default>
     </entry>
 
     <entry name="ShadowColor" type = "Color">
@@ -74,7 +74,7 @@
           <choice name="AlignCenterFullWidth" />
           <choice name="AlignRight" />
       </choices>
-      <default>AlignCenterFullWidth</default>
+      <default>AlignCenter</default>
     </entry>
 
     <!-- button size -->
@@ -86,7 +86,7 @@
           <choice name="ButtonLarge" />
           <choice name="ButtonVeryLarge" />
       </choices>
-      <default>ButtonDefault</default>
+      <default>ButtonLarge</default>
     </entry>
 
     <!-- maximized windows -->
@@ -107,7 +107,7 @@
     <!-- per-window tint -->
     <!-- ordered list of automatic color sources; any of: sampled, palette, icon -->
     <entry name="TintSources" type="StringList">
-      <default>sampled,palette,icon</default>
+      <default>palette,icon,sampled</default>
     </entry>
 
     <!-- sampled colors less saturated than this (percent) fall through to the next source -->
@@ -157,14 +157,14 @@
 
     <!-- outline thickness in logical pixels -->
     <entry name="OutlineThickness" type="Int">
-      <default>1</default>
+      <default>2</default>
       <min>1</min>
       <max>8</max>
     </entry>
 
     <!-- 0 = stock Breeze title bar, 100 = fully tinted -->
     <entry name="TitleBarTintActive" type="Int">
-      <default>20</default>
+      <default>40</default>
       <min>0</min>
       <max>100</max>
     </entry>
