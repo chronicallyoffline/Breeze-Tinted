@@ -68,6 +68,7 @@ private:
     Ui_BreezeTintedConfigurationUI m_ui;
 
     //* Tint tab widgets
+    QSpinBox *m_cornerRadius = nullptr;
     QListWidget *m_tintSources = nullptr;
     QSpinBox *m_sampledMinSaturation = nullptr;
     QSpinBox *m_tintSaturation = nullptr;

@@ -123,6 +123,7 @@ static int g_sDecoCount = 0;
 static int g_shadowSizeEnum = InternalSettings::ShadowLarge;
 static int g_shadowStrength = 255;
 static QColor g_shadowColor = Qt::black;
+static int g_shadowCornerRadius = 5;
 static std::shared_ptr<KDecoration3::DecorationShadow> g_sShadow;
 static std::shared_ptr<KDecoration3::DecorationShadow> g_sShadowInactive;
 
@@ -931,12 +932,13 @@ void Decoration::updateShadow()
     }
 
     if (g_shadowSizeEnum != m_internalSettings->shadowSize() || g_shadowStrength != m_internalSettings->shadowStrength()
-        || g_shadowColor != m_internalSettings->shadowColor()) {
+        || g_shadowColor != m_internalSettings->shadowColor() || g_shadowCornerRadius != m_internalSettings->cornerRadius()) {
         g_sShadow.reset();
         g_sShadowInactive.reset();
         g_shadowSizeEnum = m_internalSettings->shadowSize();
         g_shadowStrength = m_internalSettings->shadowStrength();
         g_shadowColor = m_internalSettings->shadowColor();
+        g_shadowCornerRadius = m_internalSettings->cornerRadius();
     }
 
     auto &shadow = (window()->isActive()) ? g_sShadow : g_sShadowInactive;
@@ -1010,9 +1012,9 @@ std::shared_ptr<KDecoration3::DecorationShadow> Decoration::createShadowObject(c
 void Decoration::setScaledCornerRadius()
 {
     // On X11, the smallSpacing value is used for scaling.
-    // On Wayland, this value has constant factor of 2.
+    // On Wayland, this value has constant factor of 2, so the configured radius is in logical pixels there.
     // Removing it will break radius scaling on X11.
-    m_scaledCornerRadius = KDecoration3::snapToPixelGrid(Metrics::Frame_FrameRadius * settings()->smallSpacing(), window()->nextScale());
+    m_scaledCornerRadius = KDecoration3::snapToPixelGrid(m_internalSettings->cornerRadius() * settings()->smallSpacing() / 2.0, window()->nextScale());
 }
 
 void Decoration::updateScale()

@@ -16,9 +16,13 @@
 #include <QDBusMessage>
 #include <QFontDatabase>
 #include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
+#include <QScrollArea>
 #include <QSpinBox>
+#include <QVBoxLayout>
 
 namespace BreezeTinted
 {
@@ -66,6 +70,12 @@ ConfigWidget::ConfigWidget(QObject *parent, const KPluginMetaData &data, const Q
     connect(m_ui.drawBackgroundGradient, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged);
     connect(m_ui.roundedCorners, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged);
 
+    // corner radius, which is not part of the .ui file
+    m_cornerRadius = createSpinBox(0, 24, i18n(" px"), widget());
+    m_cornerRadius->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_ui.formLayout_3->addRow(i18n("Corner radius:"), m_cornerRadius);
+    connect(m_cornerRadius, &QSpinBox::valueChanged, this, &ConfigWidget::updateChanged);
+
     // track shadows changes
     connect(m_ui.shadowSize, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()));
     connect(m_ui.shadowStrength, SIGNAL(valueChanged(int)), SLOT(updateChanged()));
@@ -95,6 +105,7 @@ void ConfigWidget::load()
     m_ui.outlineCloseButton->setChecked(m_internalSettings->outlineCloseButton());
     m_ui.drawBackgroundGradient->setChecked(m_internalSettings->drawBackgroundGradient());
     m_ui.roundedCorners->setChecked(m_internalSettings->roundedCorners());
+    m_cornerRadius->setValue(m_internalSettings->cornerRadius());
 
     // load shadows
     if (m_internalSettings->shadowSize() <= InternalSettings::ShadowVeryLarge) {
@@ -131,6 +142,7 @@ void ConfigWidget::save()
     m_internalSettings->setDrawBorderOnMaximizedWindows(m_ui.drawBorderOnMaximizedWindows->isChecked());
     m_internalSettings->setDrawBackgroundGradient(m_ui.drawBackgroundGradient->isChecked());
     m_internalSettings->setRoundedCorners(m_ui.roundedCorners->isChecked());
+    m_internalSettings->setCornerRadius(m_cornerRadius->value());
 
     m_internalSettings->setShadowSize(m_ui.shadowSize->currentIndex());
     m_internalSettings->setShadowStrength(qRound(qreal(m_ui.shadowStrength->value() * 255) / 100));
@@ -172,6 +184,7 @@ void ConfigWidget::defaults()
     m_ui.drawBorderOnMaximizedWindows->setChecked(m_internalSettings->drawBorderOnMaximizedWindows());
     m_ui.drawBackgroundGradient->setChecked(m_internalSettings->drawBackgroundGradient());
     m_ui.roundedCorners->setChecked(m_internalSettings->roundedCorners());
+    m_cornerRadius->setValue(m_internalSettings->cornerRadius());
 
     m_ui.shadowSize->setCurrentIndex(m_internalSettings->shadowSize());
     m_ui.shadowStrength->setValue(qRound(qreal(m_internalSettings->shadowStrength() * 100) / 255));
@@ -203,6 +216,8 @@ void ConfigWidget::updateChanged()
     } else if (m_ui.drawBackgroundGradient->isChecked() != m_internalSettings->drawBackgroundGradient()) {
         modified = true;
     } else if (m_ui.roundedCorners->isChecked() != m_internalSettings->roundedCorners()) {
+        modified = true;
+    } else if (m_cornerRadius->value() != m_internalSettings->cornerRadius()) {
         modified = true;
 
         // shadows
@@ -240,55 +255,107 @@ void ConfigWidget::updateChanged()
 //_________________________________________________________
 void ConfigWidget::setupTintTab()
 {
-    auto tab = new QWidget;
-    auto layout = new QFormLayout(tab);
-    layout->setFormAlignment(Qt::AlignHCenter | Qt::AlignTop);
+    // a group box with a form layout, appended to the tab
+    auto content = new QWidget;
+    auto contentLayout = new QVBoxLayout(content);
+    QList<QFormLayout *> forms;
+    const auto addSection = [content, contentLayout, &forms](const QString &title) {
+        auto group = new QGroupBox(title, content);
+        auto form = new QFormLayout(group);
+        form->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+        contentLayout->addWidget(group);
+        forms.append(form);
+        return form;
+    };
+    const QString intensityHint = i18n("0% looks like stock Breeze, 100% uses the window's color as is.");
 
-    m_tintSources = new QListWidget(tab);
+    // sources
+    auto sources = addSection(i18n("Color sources"));
+
+    m_tintSources = new QListWidget(content);
     m_tintSources->setDragDropMode(QAbstractItemView::InternalMove);
     m_tintSources->setDefaultDropAction(Qt::MoveAction);
     m_tintSources->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    layout->addRow(i18n("Color sources:"), m_tintSources);
+    m_tintSources->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    sources->addRow(m_tintSources);
 
-    auto sourcesHelp = new QLabel(i18n("Drag to reorder. The first source that yields a color wins; windows with no match use the accent color."), tab);
+    auto sourcesHelp = new QLabel(i18n("Drag to reorder. The first source that yields a color wins; windows with no match use the accent color."), content);
     sourcesHelp->setWordWrap(true);
     sourcesHelp->setFont(QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont));
-    layout->addRow(QString(), sourcesHelp);
+    sources->addRow(sourcesHelp);
 
-    m_sampledMinSaturation = createSpinBox(0, 100, i18n("%"), tab);
+    m_sampledMinSaturation = createSpinBox(0, 100, i18n("%"), content);
     m_sampledMinSaturation->setToolTip(i18n("Window contents less saturated than this are ignored, so the next source is used instead."));
-    layout->addRow(i18n("Minimum saturation of window contents:"), m_sampledMinSaturation);
+    sources->addRow(i18n("Ignore contents below saturation:"), m_sampledMinSaturation);
 
-    m_tintSaturation = createSpinBox(0, 300, i18n("%"), tab);
-    layout->addRow(i18n("Saturation:"), m_tintSaturation);
+    // color shaping
+    auto color = addSection(i18n("Color"));
 
-    m_tintMinLightness = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Minimum lightness:"), m_tintMinLightness);
+    m_tintSaturation = createSpinBox(0, 300, i18n("%"), content);
+    color->addRow(i18n("Saturation:"), m_tintSaturation);
 
-    m_tintMaxLightness = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Maximum lightness:"), m_tintMaxLightness);
+    m_tintMinLightness = createSpinBox(0, 100, i18n("%"), content);
+    m_tintMaxLightness = createSpinBox(0, 100, i18n("%"), content);
+    auto lightness = new QHBoxLayout;
+    lightness->addWidget(m_tintMinLightness);
+    lightness->addWidget(new QLabel(i18nc("lightness range, as in 30% to 70%", "to"), content));
+    lightness->addWidget(m_tintMaxLightness);
+    color->addRow(i18n("Lightness:"), lightness);
 
-    m_tintAccentMix = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Blend with accent color:"), m_tintAccentMix);
+    m_tintAccentMix = createSpinBox(0, 100, i18n("%"), content);
+    color->addRow(i18n("Blend with accent:"), m_tintAccentMix);
 
-    m_outlineIntensityActive = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Outline intensity (active):"), m_outlineIntensityActive);
-
-    m_outlineIntensityInactive = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Outline intensity (inactive):"), m_outlineIntensityInactive);
-
-    m_outlineThickness = createSpinBox(1, 8, i18n(" px"), tab);
-    layout->addRow(i18n("Outline thickness:"), m_outlineThickness);
-
-    m_titleBarTintActive = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Title bar tint (active):"), m_titleBarTintActive);
-
-    m_titleBarTintInactive = createSpinBox(0, 100, i18n("%"), tab);
-    layout->addRow(i18n("Title bar tint (inactive):"), m_titleBarTintInactive);
-
-    m_tintTransitionDuration = createSpinBox(0, 2000, i18n(" ms"), tab);
+    m_tintTransitionDuration = createSpinBox(0, 2000, i18n(" ms"), content);
     m_tintTransitionDuration->setSingleStep(50);
-    layout->addRow(i18n("Color transition:"), m_tintTransitionDuration);
+    color->addRow(i18n("Transition:"), m_tintTransitionDuration);
+
+    // outline
+    auto outline = addSection(i18n("Outline"));
+
+    m_outlineThickness = createSpinBox(1, 8, i18n(" px"), content);
+    outline->addRow(i18n("Thickness:"), m_outlineThickness);
+
+    m_outlineIntensityActive = createSpinBox(0, 100, i18n("%"), content);
+    m_outlineIntensityActive->setToolTip(intensityHint);
+    outline->addRow(i18n("Active window:"), m_outlineIntensityActive);
+
+    m_outlineIntensityInactive = createSpinBox(0, 100, i18n("%"), content);
+    m_outlineIntensityInactive->setToolTip(intensityHint);
+    outline->addRow(i18n("Inactive window:"), m_outlineIntensityInactive);
+
+    // title bar
+    auto titleBar = addSection(i18n("Title bar"));
+
+    m_titleBarTintActive = createSpinBox(0, 100, i18n("%"), content);
+    m_titleBarTintActive->setToolTip(intensityHint);
+    titleBar->addRow(i18n("Active window:"), m_titleBarTintActive);
+
+    m_titleBarTintInactive = createSpinBox(0, 100, i18n("%"), content);
+    m_titleBarTintInactive->setToolTip(intensityHint);
+    titleBar->addRow(i18n("Inactive window:"), m_titleBarTintInactive);
+
+    contentLayout->addStretch();
+
+    // give every section's labels the same width, so the fields line up across sections
+    QList<QWidget *> labels;
+    int labelWidth = 0;
+    for (QFormLayout *form : std::as_const(forms)) {
+        for (int row = 0; row < form->rowCount(); ++row) {
+            if (QLayoutItem *item = form->itemAt(row, QFormLayout::LabelRole); item && item->widget()) {
+                labels.append(item->widget());
+                labelWidth = std::max(labelWidth, item->widget()->sizeHint().width());
+            }
+        }
+    }
+    for (QWidget *label : std::as_const(labels)) {
+        label->setMinimumWidth(labelWidth);
+    }
+
+    // scroll when the dialog is short
+    auto tab = new QScrollArea;
+    tab->setWidget(content);
+    tab->setWidgetResizable(true);
+    tab->setFrameShape(QFrame::NoFrame);
 
     m_ui.tabWidget->insertTab(1, tab, i18n("Tint"));
 
@@ -332,6 +399,7 @@ void ConfigWidget::loadTint(const InternalSettings &settings)
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled);
         item->setCheckState(enabled.contains(source.key) ? Qt::Checked : Qt::Unchecked);
     }
+    m_tintSources->setFixedHeight(m_tintSources->sizeHintForRow(0) * m_tintSources->count() + 2 * m_tintSources->frameWidth());
 
     m_sampledMinSaturation->setValue(settings.sampledMinSaturation());
     m_tintSaturation->setValue(settings.tintSaturation());

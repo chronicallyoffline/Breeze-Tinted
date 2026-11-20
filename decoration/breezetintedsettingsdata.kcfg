@@ -104,6 +104,13 @@
        <default>false</default>
     </entry>
 
+    <!-- corner radius in logical pixels; 5 matches stock Breeze -->
+    <entry name="CornerRadius" type="Int">
+      <default>5</default>
+      <min>0</min>
+      <max>24</max>
+    </entry>
+
     <!-- per-window tint -->
     <!-- ordered list of automatic color sources; any of: sampled, palette, icon -->
     <entry name="TintSources" type="StringList">
