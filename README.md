@@ -35,6 +35,8 @@ sudo cmake --install build
 
 Then go to *System Settings → Colors & Themes → Window Decorations*, pick **Breeze Tinted**, and click its edit button to configure it.
 
+**Updating:** KWin keeps a plugin loaded once it has used it, so after installing a new build, log out and back in. Running `qdbus6 org.kde.KWin /KWin reconfigure` or reopening the settings is not enough. The settings page runs in its own process, so it shows new options right away, but they have no effect until KWin restarts.
+
 `BUILD_EFFECT` is off by default. KWin's C++ effect API is not stable, so **the effect must be rebuilt after every Plasma update**. The decoration only depends on the stable KDecoration3 API, so it doesn't have this problem.
 
 ### The tintsampler effect
