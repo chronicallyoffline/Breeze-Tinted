@@ -1,10 +1,10 @@
-# Tinted
+# Breeze Tinted
 
 A fork of the Breeze window decoration (Plasma 6.8) that gives each window its own outline and title bar tint, taken from that window's colors.
 
 Two plugins:
 
-- **`decoration/`** is the `org.kde.tinted` KDecoration3 plugin plus its KCM. It works on its own.
+- **`decoration/`** is the `org.kde.breezetinted` KDecoration3 plugin plus its KCM. It works on its own.
 - **`effect/`** is the optional `tintsampler` KWin effect. It samples each window's contents and passes the color to the decoration.
 
 ## How a window's color is chosen
@@ -33,7 +33,7 @@ cmake --build build
 sudo cmake --install build
 ```
 
-Then go to *System Settings → Colors & Themes → Window Decorations*, pick **Tinted**, and click its edit button to configure it.
+Then go to *System Settings → Colors & Themes → Window Decorations*, pick **Breeze Tinted**, and click its edit button to configure it.
 
 `BUILD_EFFECT` is off by default. KWin's C++ effect API is not stable, so **the effect must be rebuilt after every Plasma update**. The decoration only depends on the stable KDecoration3 API, so it doesn't have this problem.
 
@@ -67,9 +67,9 @@ The decoration and effect can be run in a headless KWin with its own config and 
 
 ```sh
 mkdir -p /tmp/tinted/plugins/org.kde.kdecoration3 /tmp/tinted/plugins/kwin/effects/plugins /tmp/tinted/config
-ln -sf "$PWD/build/bin/org.kde.tinted.so" /tmp/tinted/plugins/org.kde.kdecoration3/
+ln -sf "$PWD/build/bin/org.kde.breezetinted.so" /tmp/tinted/plugins/org.kde.kdecoration3/
 ln -sf "$PWD/build/bin/kwin/effects/plugins/tintsampler.so" /tmp/tinted/plugins/kwin/effects/plugins/
-printf '[org.kde.kdecoration2]\nlibrary=org.kde.tinted\ntheme=Tinted\n\n[Plugins]\ntintsamplerEnabled=true\n' > /tmp/tinted/config/kwinrc
+printf '[org.kde.kdecoration2]\nlibrary=org.kde.breezetinted\ntheme=Breeze Tinted\n\n[Plugins]\ntintsamplerEnabled=true\n' > /tmp/tinted/config/kwinrc
 cp ~/.config/kdeglobals /tmp/tinted/config/
 
 env -u WAYLAND_DISPLAY -u DISPLAY XDG_CONFIG_HOME=/tmp/tinted/config QT_PLUGIN_PATH=/tmp/tinted/plugins:/usr/lib/qt6/plugins \

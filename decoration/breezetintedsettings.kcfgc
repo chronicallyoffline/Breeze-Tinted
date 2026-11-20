@@ -1,0 +1,7 @@
+File=breezetintedsettingsdata.kcfg
+ClassName=InternalSettings
+NameSpace=BreezeTinted
+Singleton=false
+Mutators=true
+GlobalEnums=true
+Notifiers=OutlineCloseButton

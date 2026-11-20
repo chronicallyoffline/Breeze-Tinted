@@ -1,0 +1,16 @@
+{
+    "KPlugin": {
+        "Description": "Breeze-style window decoration with per-window outline and titlebar tint",
+        "EnabledByDefault": true,
+        "Name": "Breeze Tinted"
+    },
+    "X-KDE-ConfigModule": "kcm_breezetinteddecoration",
+    "org.kde.kdecoration3": {
+        "blur": false,
+        "recommendedBorderSize": "None",
+        "styles": [
+            "shadow",
+            "titled"
+        ]
+    }
+}

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(kwin-tinted VERSION 0.1.0)
+project(breeze-tinted VERSION 0.1.0)
 
 set(QT_MIN_VERSION "6.8.0")
 set(KF6_MIN_VERSION "6.10.0")

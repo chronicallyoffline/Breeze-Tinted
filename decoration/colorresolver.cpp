@@ -14,7 +14,7 @@
 #include <array>
 #include <cmath>
 
-namespace Tinted
+namespace BreezeTinted
 {
 namespace
 {

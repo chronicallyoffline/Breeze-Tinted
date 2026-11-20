@@ -1,23 +1,23 @@
-add_definitions(-DTRANSLATION_DOMAIN="tinted_kwin_deco")
+add_definitions(-DTRANSLATION_DOMAIN="breezetinted_kwin_deco")
 
-set(tinteddecoration_SRCS
-    tintedbutton.cpp
-    tinteddecoration.cpp
-    tintedsettingsprovider.cpp
-    tintedexceptionlist.cpp
+set(breezetinteddecoration_SRCS
+    breezetintedbutton.cpp
+    breezetinteddecoration.cpp
+    breezetintedsettingsprovider.cpp
+    breezetintedexceptionlist.cpp
     colorresolver.cpp
 )
 
-kconfig_add_kcfg_files(tinteddecoration_SRCS tintedsettings.kcfgc)
-add_library(tinteddecoration MODULE ${tinteddecoration_SRCS})
+kconfig_add_kcfg_files(breezetinteddecoration_SRCS breezetintedsettings.kcfgc)
+add_library(breezetinteddecoration MODULE ${breezetinteddecoration_SRCS})
 
-set_target_properties(tinteddecoration PROPERTIES
-    OUTPUT_NAME org.kde.tinted
+set_target_properties(breezetinteddecoration PROPERTIES
+    OUTPUT_NAME org.kde.breezetinted
 )
 
-target_link_libraries(tinteddecoration
+target_link_libraries(breezetinteddecoration
     PRIVATE
-        tintedcommon
+        breezetintedcommon
         Qt6::DBus
         KF6::CoreAddons
         KF6::ConfigGui
@@ -28,7 +28,7 @@ target_link_libraries(tinteddecoration
         KF6::ColorScheme
 )
 
-install(TARGETS tinteddecoration DESTINATION ${KDE_INSTALL_PLUGINDIR}/${KDECORATION_PLUGIN_DIR})
-install(FILES tintedsettingsdata.kcfg DESTINATION ${KDE_INSTALL_KCFGDIR} RENAME tinted-decoration.kcfg)
+install(TARGETS breezetinteddecoration DESTINATION ${KDE_INSTALL_PLUGINDIR}/${KDECORATION_PLUGIN_DIR})
+install(FILES breezetintedsettingsdata.kcfg DESTINATION ${KDE_INSTALL_KCFGDIR} RENAME breezetinted-decoration.kcfg)
 
 add_subdirectory(config)

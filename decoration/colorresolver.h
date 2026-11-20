@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "tintedsettings.h"
+#include "breezetintedsettings.h"
 
 #include <QColor>
 #include <QIcon>
 #include <QPalette>
 #include <QString>
 
-namespace Tinted
+namespace BreezeTinted
 {
 //* turns per-window information into a single tint color
 namespace ColorResolver
