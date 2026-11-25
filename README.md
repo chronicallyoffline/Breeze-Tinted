@@ -84,3 +84,4 @@ Inside the session script, launch apps with `WAYLAND_DISPLAY=wayland-tinted`, an
 ## Credits
 
 Based on [Breeze](https://invent.kde.org/plasma/breeze) 6.8.2 (`kdecoration/` and `libbreezecommon/`). The original copyright headers are kept. The decoration is GPL-2.0-only OR GPL-3.0-only, like Breeze; the effect is GPL-2.0-or-later, like KWin.
+The full license texts are in [`LICENSES/`](LICENSES/).
